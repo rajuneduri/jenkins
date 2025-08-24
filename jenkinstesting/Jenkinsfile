@@ -2,13 +2,13 @@ pipeline {
     agent { label 'windows' }
 
     environment {
-        DEPLOY_DIR = "D:/Jenkins"
+        DEPLOY_DIR = "P:/Jenkinss"
     }
 
     stages {
        stage('Prepare Deploy Folder') {
                 steps {
-                    bat 'if not exist D:\\JenkinsDeploy mkdir D:\\Jenkins'
+                    bat 'if not exist P:\\Jenkinss mkdir D:\\Jenkinss'
                      echo "File Created"
                 }
             }
