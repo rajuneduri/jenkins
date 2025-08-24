@@ -68,18 +68,46 @@ stage('Run Application in Background') {
 
 
     post {
-       success {
-               echo 'Build and Deployment Successful!'
+//        success {
+//                echo 'Build and Deployment Successful!'
+//
+//                emailext (
+//                    to: 'rajuneduri2255@gmail.com',
+//                    subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+//                    body: """<p>Good news!</p>
+//                             <p>The build and deployment of job <b>${env.JOB_NAME}</b> #${env.BUILD_NUMBER} was successful.</p>
+//                             <p>Check details at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+//                    mimeType: 'text/html'
+//                )
+//            }
 
-               emailext (
-                   to: 'rajuneduri2255@gmail.com',
-                   subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                   body: """<p>Good news!</p>
-                            <p>The build and deployment of job <b>${env.JOB_NAME}</b> #${env.BUILD_NUMBER} was successful.</p>
-                            <p>Check details at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
-                   mimeType: 'text/html'
-               )
-           }
+post {
+    success {
+        echo 'Build and Deployment Successful!'
+
+        script {
+            def commitAuthor = bat(
+                script: 'git log -1 --pretty=format:"%an <%ae>"',
+                returnStdout: true
+            ).trim()
+
+            def commitHash = bat(
+                script: 'git rev-parse --short HEAD',
+                returnStdout: true
+            ).trim()
+
+            emailext (
+                to: 'rajuneduri2255@gmail.com',
+                subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: """<p><b>Build Status:</b> SUCCESS</p>
+                         <p><b>Job:</b> ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
+                         <p><b>Triggered By:</b> ${currentBuild.getBuildCauses()[0].userName ?: 'Auto/Webhook'}</p>
+                         <p><b>Last Commit:</b> ${commitHash} by ${commitAuthor}</p>
+                         <p><b>View Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                mimeType: 'text/html'
+            )
+        }
+    }
        failure {
                echo 'Pipeline Failed!'
 
