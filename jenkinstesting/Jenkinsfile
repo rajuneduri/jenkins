@@ -57,10 +57,11 @@ pipeline {
 
                   dir('jenkinstesting') {
                       // Author
-                      commitAuthor = bat(
-                          script: 'for /f "delims=" %%i in ('git log -1 --pretty=format:"%%an <%%ae>"') do @echo %%i',
-                          returnStdout: true
-                      ).trim()
+                    commitAuthor = bat(
+                        script: """for /f "delims=" %%i in ('git log -1 --pretty=format:"%%an <%%ae>"') do @echo %%i""",
+                        returnStdout: true
+                    ).trim()
+
 
                       // Commit hash
                       commitHash = bat(
