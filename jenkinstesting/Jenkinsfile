@@ -44,72 +44,58 @@ pipeline {
 
     }
 
-      post {
-          success {
-              echo 'Build and Deployment Successful!'
-              echo 'Email Trigger'
-              script {
-                  def commitAuthor = ''
-                  def commitHash = ''
-                  def commitMessage = ''
-                  def changedFiles = ''
-                  def triggeredBy = currentBuild.getBuildCauses()?.getAt(0)?.userName ?: 'Auto/Webhook'
+   post {
+       success {
+           echo 'Build and Deployment Successful!'
+           echo 'Email Trigger'
+           script {
+               sendGitEmail('SUCCESS')
+           }
+       }
+       failure {
+           echo 'Pipeline Failed!'
+           script {
+               sendGitEmail('FAILURE')
+           }
+       }
+   }
 
-                  dir('jenkinstesting') {
-                      // Author
-                   commitAuthor = bat(
-                       script: """for /f "delims=" %%i in ('git log -1 --pretty=format:"%%an <%%ae>"') do @echo %%i""",
-                       returnStdout: true
-                   ).trim()
+   // Put this outside the pipeline { } block or inside as a method (if your Jenkins supports it)
 
-                   commitHash = bat(
-                       script: """for /f "delims=" %%i in ('git rev-parse --short HEAD') do @echo %%i""",
-                       returnStdout: true
-                   ).trim()
+   def sendGitEmail(String status) {
+       def commitAuthor = ''
+       def commitHash = ''
+       def commitMessage = ''
+       def changedFiles = ''
+       def triggeredBy = currentBuild.getBuildCauses()?.getAt(0)?.userName ?: 'Auto/Webhook'
 
-                   commitMessage = bat(
-                       script: """for /f "delims=" %%i in ('git log -1 --pretty=format:"%%s"') do @echo %%i""",
-                       returnStdout: true
-                   ).trim()
+       dir('jenkinstesting') {
+           commitAuthor = bat(script: 'git log -1 --pretty=format:"%an <%ae>"', returnStdout: true).trim()
+           commitHash = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+           commitMessage = bat(script: 'git log -1 --pretty=format:"%s"', returnStdout: true).trim()
+           changedFiles = bat(script: 'git show --name-only --pretty="" HEAD', returnStdout: true).trim().replaceAll('\r\n', '<br>')
+       }
 
+       def subject = "${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+       def body = """
+           <p><b>Build Status:</b> ${status}</p>
+           <p><b>Job:</b> ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
+           <p><b>Triggered By:</b> ${triggeredBy}</p>
+           <p><b>Commit:</b> ${commitHash}</p>
+           <p><b>Author:</b> ${commitAuthor}</p>
+           <p><b>Message:</b> ${commitMessage}</p>
+           <p><b>Files Changed:</b><br>${changedFiles}</p>
+           <p><b>View Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+       """
 
-                      // Changed files
-                      changedFiles = bat(
-                          script: 'git show --name-only --pretty="" HEAD',
-                          returnStdout: true
-                      ).trim().replaceAll('\r\n', '<br>')
-                  }
+       emailext (
+           to: 'rajuneduri2255@gmail.com',
+           subject: subject,
+           body: body,
+           mimeType: 'text/html'
+       )
+   }
 
-                  emailext (
-                      to: 'rajuneduri2255@gmail.com',
-                      subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                      body: """
-                          <p><b>Build Status:</b> SUCCESS</p>
-                          <p><b>Job:</b> ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
-                          <p><b>Triggered By:</b> ${triggeredBy}</p>
-                          <p><b>Commit:</b> ${commitHash}</p>
-                          <p><b>Author:</b> ${commitAuthor}</p>
-                          <p><b>Message:</b> ${commitMessage}</p>
-                          <p><b>Files Changed:</b><br>${changedFiles}</p>
-                          <p><b>View Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                      """,
-                      mimeType: 'text/html'
-                  )
-              }
-          }
-
-          failure {
-              echo 'Pipeline Failed!'
-
-              emailext (
-                  to: 'rajuneduri2255@gmail.com',
-                  subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                  body: """<p>Unfortunately, the job <b>${env.JOB_NAME}</b> #${env.BUILD_NUMBER} has failed.</p>
-                           <p>Please review the build at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
-                  mimeType: 'text/html'
-              )
-          }
-      }
 
 
 
