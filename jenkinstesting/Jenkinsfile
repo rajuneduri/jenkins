@@ -2,49 +2,50 @@ pipeline {
     agent { label 'windows' }
 
     environment {
-        DEPLOY_DIR = "P:/Jenkinss"
+        DEPLOY_DIR = "P:/Jenkinss"  // Still defined, but unused
     }
 
     stages {
-       stage('Prepare Deploy Folder') {
-                steps {
-                    bat 'if not exist P:\\Jenkinss mkdir P:\\Jenkinss'
-                     echo "File Created"
-                }
+        stage('Prepare Deploy Folder') {
+            steps {
+                bat 'if not exist P:\\Jenkinss mkdir P:\\Jenkinss'
+                echo "Deploy folder prepared"
             }
+        }
 
         stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/rajuneduri/jenkins.git'
-                 echo "Successfully Pulled the code"
+                echo "Successfully pulled the code"
             }
         }
 
         stage('Build with Maven') {
             steps {
-                   dir('jenkinstesting') {
-                       bat 'mvn clean install'
-                   }
-                   echo "Successfully created jar"
-               }
+                dir('jenkinstesting') {
+                    bat 'mvn clean install'
+                }
+                echo "Successfully created JAR"
+            }
         }
 
-     stage('Run Application') {
-                steps {
-                    script {
-                        // Navigate to the target directory and find the jar
-                        def jarFile = bat(
-                            script: 'for /f %i in (\'dir /b jenkinstesting\\target\\*.jar\') do @echo %i',
-                            returnStdout: true
-                        ).trim()
+        stage('Run Application') {
+            steps {
+                script {
+                    // Corrected batch loop variable to use %%i
+                    def jarFile = bat(
+                        script: 'for /f %%i in (\'dir /b jenkinstesting\\target\\*.jar\') do @echo %%i',
+                        returnStdout: true
+                    ).trim()
 
-                        echo "Running ${jarFile} from workspace"
+                    echo "Running ${jarFile} from workspace"
 
-                        // Run the jar using start so it doesn't block Jenkins
-                        bat "start \"SpringApp\" java -jar jenkinstesting\\target\\${jarFile}"
-                    }
+                    // Start the JAR asynchronously
+                    bat "start \"SpringApp\" java -jar jenkinstesting\\target\\${jarFile}"
                 }
             }
+        }
+    }
 
     post {
         success {
