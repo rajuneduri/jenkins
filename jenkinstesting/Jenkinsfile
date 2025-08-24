@@ -80,7 +80,7 @@ def sendGitEmail(String status) {
 
         // Get commit message
         commitMessage = bat(
-            script: '@git log -1 --pretty=format:"%s"',
+            script: '@git log -1 --pretty=%%B"',
             returnStdout: true
         ).trim()
 
