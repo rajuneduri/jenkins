@@ -29,6 +29,21 @@ pipeline {
             }
         }
 
+stage('Open Command Prompt in Target Folder') {
+    steps {
+        script {
+            // Path to the target directory
+            def targetPath = "${env.WORKSPACE}\\jenkinstesting\\target"
+
+            // Echo to confirm the path
+            echo "Opening command prompt in: ${targetPath}"
+
+            // Start a new command prompt window and CD to target directory
+            bat "start cmd /k \"cd /d ${targetPath}\""
+        }
+    }
+}
+
         stage('Run Application') {
             steps {
                 script {
@@ -47,6 +62,8 @@ echo "Found JAR file: ${jarFile}"
                 }
             }
         }
+
+
 
     }
 
