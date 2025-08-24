@@ -51,33 +51,53 @@ pipeline {
            script {
                def commitAuthor = ''
                def commitHash = ''
+               def commitMessage = ''
+               def changedFiles = ''
                def triggeredBy = currentBuild.getBuildCauses()?.getAt(0)?.userName ?: 'Auto/Webhook'
 
-               // Ensure correct directory
                dir('jenkinstesting') {
-                   // Cleanly get author info
+                   // Author
                    commitAuthor = bat(
                        script: 'for /f "delims=" %%i in (\'git log -1 --pretty=format:"%%an <%%ae>"\') do @echo %%i',
                        returnStdout: true
                    ).trim()
 
-                   // Cleanly get commit hash
+                   // Commit hash
                    commitHash = bat(
                        script: 'for /f "delims=" %%i in (\'git rev-parse --short HEAD\') do @echo %%i',
                        returnStdout: true
                    ).trim()
+
+                   // Commit message
+                   commitMessage = bat(
+                       script: 'for /f "delims=" %%i in (\'git log -1 --pretty=format:"%%s"\') do @echo %%i',
+                       returnStdout: true
+                   ).trim()
+
+                   // Changed files
+                   changedFiles = bat(
+                       script: 'git show --name-only --pretty="" HEAD',
+                       returnStdout: true
+                   ).trim().replaceAll('\r\n', '<br>')
                }
 
                emailext (
                    to: 'rajuneduri2255@gmail.com',
                    subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                   body: """<p><b>Build Status:</b> SUCCESS</p>
-                            <p><b>Job:</b> ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
-                            <p><b>Triggered By:</b> ${triggeredBy}</p>
-                            <p><b>Last Commit:</b> ${commitHash} by ${commitAuthor}</p>
-                            <p><b>View Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                   body: """
+                       <p><b>Build Status:</b> SUCCESS</p>
+                       <p><b>Job:</b> ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
+                       <p><b>Triggered By:</b> ${triggeredBy}</p>
+                       <p><b>Commit:</b> ${commitHash}</p>
+                       <p><b>Author:</b> ${commitAuthor}</p>
+                       <p><b>Message:</b> ${commitMessage}</p>
+                       <p><b>Files Changed:</b><br>${changedFiles}</p>
+                       <p><b>View Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                   """,
                    mimeType: 'text/html'
                )
+           }
+
            }
        }
 
