@@ -68,7 +68,7 @@ def sendGitEmail(String status) {
     dir('jenkinstesting') {
         // Get commit author
         commitAuthor = bat(
-            script: '@git log -1 --pretty=format:"%an <%ae>"',
+            script: '@git log -1 --pretty=format:"%an"',
             returnStdout: true
         ).trim()
 
