@@ -83,7 +83,7 @@ stage('Run Application in Background') {
 
   success {
         echo 'Build and Deployment Successful!'
-
+        echo 'Email Trigger'
         script {
             def commitAuthor = bat(
                 script: 'git log -1 --pretty=format:"%an <%ae>"',
@@ -119,4 +119,5 @@ stage('Run Application in Background') {
                )
            }
     }
+    echo 'Mail Triggered pass or Failed'
 }
