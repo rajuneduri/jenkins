@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    environment {
+        DEPLOY_DIR = "D:/JenkinsDeploy"
+    }
+
+    stages {
+
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/rajuneduri/jenkins.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                bat 'mvn clean install'
+            }
+        }
+
+        stage('Copy JAR to D:/https://github.com/rajuneduri/jenkins.git') {
+            steps {
+                script {
+                    def jarFile = bat(script: "for /f %%i in ('dir /b target\\*.jar') do @echo %%i", returnStdout: true).trim()
+                    echo "Copying ${jarFile} to ${env.DEPLOY_DIR}"
+                    bat "copy /Y target\\${jarFile} ${env.DEPLOY_DIR}\\"
+                }
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                script {
+                    def jarFile = bat(script: "for /f %%i in ('dir /b target\\*.jar') do @echo %%i", returnStdout: true).trim()
+                    bat "start java -jar ${env.DEPLOY_DIR}\\${jarFile}"
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build and Deployment Successful!'
+        }
+        failure {
+            echo 'Pipeline Failed!'
+        }
+    }
+}
