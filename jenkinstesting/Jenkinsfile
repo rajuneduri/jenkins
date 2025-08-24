@@ -67,11 +67,28 @@ stage('Run Application in Background') {
     }
 
     post {
-        success {
-            echo 'Build and Deployment Successful!'
-        }
-        failure {
-            echo 'Pipeline Failed!'
-        }
+       success {
+               echo 'Build and Deployment Successful!'
+
+               emailext (
+                   to: 'rajuneduri2255@gmail.com',
+                   subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                   body: """<p>Good news!</p>
+                            <p>The build and deployment of job <b>${env.JOB_NAME}</b> #${env.BUILD_NUMBER} was successful.</p>
+                            <p>Check details at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                   mimeType: 'text/html'
+               )
+           }
+       failure {
+               echo 'Pipeline Failed!'
+       
+               emailext (
+                   to: 'rajuneduri2255@gmail.com',
+                   subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                   body: """<p>Unfortunately, the job <b>${env.JOB_NAME}</b> #${env.BUILD_NUMBER} has failed.</p>
+                            <p>Please review the build at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                   mimeType: 'text/html'
+               )
+           }
     }
 }
