@@ -39,29 +39,29 @@ stage('Open Command Prompt in Target Folder') {
             echo "Opening command prompt in: ${targetPath}"
 
             // Start a new command prompt window and CD to target directory
-            bat "start cmd /k \"cd /d ${targetPath}\""
+            bat "start cmd /k \"cd /d ${targetPath} && java -jar jenkinstesting-0.0.1-SNAPSHOT.jar\""
         }
     }
 }
 
-        stage('Run Application') {
-            steps {
-                script {
-                    def jarFile = bat(
-                        script: 'for /f %%i in (\'dir /b jenkinstesting\\target\\*.jar\') do @echo %%i',
-                        returnStdout: true
-                    ).trim()
-echo "Found JAR file: ${jarFile}"
-                    echo "Running ${jarFile} from workspace"
-
-                      def jarPath = "jenkinstesting\\target\\${jarFile}"
-                                echo "Running application using JAR: ${jarPath}"
-
-                    // Properly run the jar
-                    bat "start \"SpringApp\" cmd /c \"java -jar ${jarPath}\""
-                }
-            }
-        }
+//         stage('Run Application') {
+//             steps {
+//                 script {
+//                     def jarFile = bat(
+//                         script: 'for /f %%i in (\'dir /b jenkinstesting\\target\\*.jar\') do @echo %%i',
+//                         returnStdout: true
+//                     ).trim()
+// echo "Found JAR file: ${jarFile}"
+//                     echo "Running ${jarFile} from workspace"
+//
+//                       def jarPath = "jenkinstesting\\target\\${jarFile}"
+//                                 echo "Running application using JAR: ${jarPath}"
+//
+//                     // Properly run the jar
+//                     bat "start \"SpringApp\" cmd /c \"java -jar ${jarPath}\""
+//                 }
+//             }
+//         }
 
 
 
