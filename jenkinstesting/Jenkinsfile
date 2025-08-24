@@ -46,6 +46,7 @@ pipeline {
 
    post {
        success {
+       
            echo 'Build and Deployment Successful!'
            echo 'Email Trigger'
            script {
