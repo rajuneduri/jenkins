@@ -36,11 +36,14 @@ pipeline {
                         script: 'for /f %%i in (\'dir /b jenkinstesting\\target\\*.jar\') do @echo %%i',
                         returnStdout: true
                     ).trim()
-
+echo "Found JAR file: ${jarFile}"
                     echo "Running ${jarFile} from workspace"
 
+                      def jarPath = "jenkinstesting\\target\\${jarFile}"
+                                echo "Running application using JAR: ${jarPath}"
+
                     // Properly run the jar
-                    bat "start \"SpringApp\" cmd /c \"java -jar jenkinstesting\\target\\${jarFile}\""
+                    bat "start \"SpringApp\" cmd /c \"java -jar ${jarPath}\""
                 }
             }
         }
