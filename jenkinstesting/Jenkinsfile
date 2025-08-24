@@ -29,15 +29,17 @@ pipeline {
                }
         }
 
-        stage('Copy JAR to D:/https://github.com/rajuneduri/jenkins.git') {
-               steps {
-                   script {
-                       def jarFile = bat(script: "for /f %%i in ('dir /b jenkinstesting\\target\\*.jar') do @echo %%i", returnStdout: true).trim()
-                       echo "Copying ${jarFile} to ${env.DEPLOY_DIR}"
-                       bat "copy /Y jenkinstesting\\target\\${jarFile} ${env.DEPLOY_DIR}\\"
-                   }
+       stage('Copy JAR to Deploy Folder') {
+           steps {
+               script {
+                   def jarFileOutput = bat(script: 'dir /b jenkinstesting\\target\\*.jar', returnStdout: true).trim()
+                   def jarFile = jarFileOutput.readLines()[0] // safely get first line
+                   echo "Copying ${jarFile} to ${env.DEPLOY_DIR}"
+                   bat "copy /Y jenkinstesting\\target\\${jarFile} ${env.DEPLOY_DIR}\\"
                }
-        }
+           }
+       }
+
 
         stage('Run Application') {
             steps {
