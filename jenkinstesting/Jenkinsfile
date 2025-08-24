@@ -10,12 +10,14 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/rajuneduri/jenkins.git'
+                 echo "Successfully Pulled the code"
             }
         }
 
         stage('Build with Maven') {
             steps {
                 bat 'mvn clean install'
+                echo "Successfully create jar"
             }
         }
 
