@@ -29,22 +29,23 @@ pipeline {
             }
         }
 
-       stage('Run Application') {
-           steps {
-               script {
-                   def jarFile = bat(
-                       script: 'for /f %%i in (\'dir /b jenkinstesting\\target\\*.jar\') do @echo %%i',
-                       returnStdout: true
-                   ).trim()
+        stage('Run Application') {
+            steps {
+                script {
+                    def jarFile = bat(
+                        script: 'for /f %%i in (\'dir /b jenkinstesting\\target\\*.jar\') do @echo %%i',
+                        returnStdout: true
+                    ).trim()
 
-                   echo "Running ${jarFile} from workspace"
+                    echo "Running ${jarFile} from workspace"
 
-                   // Properly run the jar
-                   bat "start \"SpringApp\" cmd /c \"java -jar jenkinstesting\\target\\${jarFile}\""
-               }
-           }
-       }
+                    // Properly run the jar
+                    bat "start \"SpringApp\" cmd /c \"java -jar jenkinstesting\\target\\${jarFile}\""
+                }
+            }
+        }
 
+    }
 
     post {
         success {
