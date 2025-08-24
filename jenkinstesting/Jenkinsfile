@@ -33,9 +33,7 @@ pipeline {
             steps {
                 script {
                     def jarPath = "${env.WORKSPACE}\\jenkinstesting\\target\\jenkinstesting-0.0.1-SNAPSHOT.jar"
-
                     echo "Running application from: ${jarPath}"
-
                     bat "start /b java -jar \"${jarPath}\""
                 }
             }
@@ -45,13 +43,14 @@ pipeline {
     post {
         success {
             echo 'Build and Deployment Successful!'
-            echo 'Email Trigger'
+            echo 'Sending success email...'
             script {
                 sendGitEmail('SUCCESS')
             }
         }
         failure {
             echo 'Pipeline Failed!'
+            echo 'Sending failure email...'
             script {
                 sendGitEmail('FAILURE')
             }
@@ -59,7 +58,6 @@ pipeline {
     }
 }
 
-// Function MUST be outside the pipeline block
 def sendGitEmail(String status) {
     def commitAuthor = ''
     def commitHash = ''
@@ -68,10 +66,29 @@ def sendGitEmail(String status) {
     def triggeredBy = currentBuild.getBuildCauses()?.getAt(0)?.userName ?: 'Auto/Webhook'
 
     dir('jenkinstesting') {
-        commitAuthor = bat(script: 'git log -1 --pretty=format:"%an <%ae>"', returnStdout: true).trim()
-        commitHash = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-        commitMessage = bat(script: 'git log -1 --pretty=format:"%s"', returnStdout: true).trim()
-        changedFiles = bat(script: 'git show --name-only --pretty="" HEAD', returnStdout: true).trim().replaceAll('\r\n', '<br>')
+        // Get commit author
+        commitAuthor = bat(
+            script: '@git log -1 --pretty=format:"%an <%ae>"',
+            returnStdout: true
+        ).trim()
+
+        // Get short commit hash
+        commitHash = bat(
+            script: '@git rev-parse --short HEAD',
+            returnStdout: true
+        ).trim()
+
+        // Get commit message
+        commitMessage = bat(
+            script: '@git log -1 --pretty=format:"%s"',
+            returnStdout: true
+        ).trim()
+
+        // Get changed files
+        changedFiles = bat(
+            script: '@git show --name-only --pretty="" HEAD',
+            returnStdout: true
+        ).trim().replaceAll('(\r\n|\n)', '<br>')
     }
 
     def subject = "${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
@@ -86,7 +103,7 @@ def sendGitEmail(String status) {
         <p><b>View Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
     """
 
-    emailext (
+    emailext(
         to: 'rajuneduri2255@gmail.com',
         subject: subject,
         body: body,
