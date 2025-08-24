@@ -29,31 +29,22 @@ pipeline {
                }
         }
 
-     stage('Copy JAR to Deploy Folder') {
-         steps {
-             script {
-                 // Get list of JAR files
-                 def jarFileOutput = bat(script: 'dir /b jenkinstesting\\target\\*.jar', returnStdout: true).trim()
-                 def jarFile = jarFileOutput.readLines()[0] // safest way to get the first JAR name
-                 echo "Copying ${jarFile} to ${env.DEPLOY_DIR}"
+     stage('Run Application') {
+                steps {
+                    script {
+                        // Navigate to the target directory and find the jar
+                        def jarFile = bat(
+                            script: 'for /f %i in (\'dir /b jenkinstesting\\target\\*.jar\') do @echo %i',
+                            returnStdout: true
+                        ).trim()
 
-                 // Now perform the actual copy using correct path
-                 bat "copy /Y \"jenkinstesting\\target\\${jarFile}\" \"${env.DEPLOY_DIR}\\\""
-             }
-         }
-     }
+                        echo "Running ${jarFile} from workspace"
 
-
-
-        stage('Run Application') {
-            steps {
-                script {
-                    def jarFile = bat(script: "for /f %%i in ('dir /b target\\*.jar') do @echo %%i", returnStdout: true).trim()
-                    bat "start java -jar ${env.DEPLOY_DIR}\\${jarFile}"
+                        // Run the jar using start so it doesn't block Jenkins
+                        bat "start \"SpringApp\" java -jar jenkinstesting\\target\\${jarFile}"
+                    }
                 }
             }
-        }
-    }
 
     post {
         success {
