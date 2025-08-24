@@ -12,6 +12,6 @@ public class Testing {
     }
     @GetMapping("/tetw")
     public String testingww(){
-        return "Jenkinsfile22";
+        return "Jenkinsfile22  ";
     }
 }
