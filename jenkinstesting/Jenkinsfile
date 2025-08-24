@@ -29,7 +29,7 @@ pipeline {
             }
         }
 
-stage('Run Application in Background') {
+        stage('Run Application in Background') {
             steps {
                 script {
                     def jarPath = "${env.WORKSPACE}\\jenkinstesting\\target\\jenkinstesting-0.0.1-SNAPSHOT.jar"
@@ -45,9 +45,7 @@ stage('Run Application in Background') {
     }
 
     post {
-
-
-  success {
+     success {
         echo 'Build and Deployment Successful!'
         echo 'Email Trigger'
         script {
@@ -71,8 +69,8 @@ stage('Run Application in Background') {
                          <p><b>View Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
                 mimeType: 'text/html'
             )
-        }
-    }
+           }
+      }
        failure {
                echo 'Pipeline Failed!'
 
