@@ -1,11 +1,17 @@
 pipeline {
-    agent any
+    agent { label 'windows' }
 
     environment {
         DEPLOY_DIR = "D:/JenkinsDeploy"
     }
 
     stages {
+       stage('Prepare Deploy Folder') {
+                steps {
+                    bat 'if not exist D:\\JenkinsDeploy mkdir D:\\JenkinsDeploy'
+                     echo "File Created"
+                }
+            }
 
         stage('Clone Repository') {
             steps {
