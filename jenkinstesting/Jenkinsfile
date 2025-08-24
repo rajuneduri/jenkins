@@ -59,6 +59,7 @@ pipeline {
 }
 
 
+
 def sendGitEmail(String status) {
     def commitAuthor = ''
     def commitHash = ''
