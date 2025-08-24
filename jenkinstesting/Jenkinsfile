@@ -65,6 +65,7 @@ stage('Run Application in Background') {
 
 
     }
+    }
 
     post {
        success {
@@ -81,7 +82,7 @@ stage('Run Application in Background') {
            }
        failure {
                echo 'Pipeline Failed!'
-       
+
                emailext (
                    to: 'rajuneduri2255@gmail.com',
                    subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
