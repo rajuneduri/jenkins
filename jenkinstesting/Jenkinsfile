@@ -34,15 +34,16 @@ stage('Open Command Prompt in Target Folder') {
         script {
             // Path to the target directory
             def targetPath = "${env.WORKSPACE}\\jenkinstesting\\target"
+            def jarFile = "jenkinstesting-0.0.1-SNAPSHOT.jar"
 
-            // Echo to confirm the path
             echo "Opening command prompt in: ${targetPath}"
 
-            // Start a new command prompt window and CD to target directory
-            bat "start cmd /k \"cd /d ${targetPath} && java -jar jenkinstesting-0.0.1-SNAPSHOT.jar\""
+            // Start a new Command Prompt window that stays open and runs the JAR
+            bat """start \"SpringApp\" cmd /k \"cd /d ${targetPath} && java -jar ${jarFile}\""""
         }
     }
 }
+
 
 //         stage('Run Application') {
 //             steps {
