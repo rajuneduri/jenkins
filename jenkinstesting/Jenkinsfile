@@ -30,7 +30,6 @@ pipeline {
         }
 
         stage('Copy JAR to D:/https://github.com/rajuneduri/jenkins.git') {
-           stage('Copy JAR to Deploy Folder') {
                steps {
                    script {
                        def jarFile = bat(script: "for /f %%i in ('dir /b jenkinstesting\\target\\*.jar') do @echo %%i", returnStdout: true).trim()
@@ -38,8 +37,6 @@ pipeline {
                        bat "copy /Y jenkinstesting\\target\\${jarFile} ${env.DEPLOY_DIR}\\"
                    }
                }
-           }
-
         }
 
         stage('Run Application') {
