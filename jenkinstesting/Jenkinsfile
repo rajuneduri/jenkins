@@ -81,8 +81,7 @@ stage('Run Application in Background') {
 //                )
 //            }
 
-post {
-    success {
+  success {
         echo 'Build and Deployment Successful!'
 
         script {
