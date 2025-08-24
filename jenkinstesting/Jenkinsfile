@@ -29,20 +29,18 @@ pipeline {
             }
         }
 
-stage('Open Command Prompt in Target Folder') {
-    steps {
-        script {
-            // Path to the target directory
-            def targetPath = "${env.WORKSPACE}\\jenkinstesting\\target"
-            def jarFile = "jenkinstesting-0.0.1-SNAPSHOT.jar"
+stage('Run Application in Background') {
+            steps {
+                script {
+                    def jarPath = "${env.WORKSPACE}\\jenkinstesting\\target\\jenkinstesting-0.0.1-SNAPSHOT.jar"
 
-            echo "Opening command prompt in: ${targetPath}"
+                    echo "Running application from: ${jarPath}"
 
-            // Start a new Command Prompt window that stays open and runs the JAR
-            bat """start \"SpringApp\" cmd /k \"cd /d ${targetPath} && java -jar ${jarFile}\""""
+                    // Launch the application in the background (no new window, persistent)
+                    bat "start /b java -jar \"${jarPath}\""
+                }
+            }
         }
-    }
-}
 
 
 //         stage('Run Application') {
