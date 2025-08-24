@@ -29,16 +29,20 @@ pipeline {
                }
         }
 
-       stage('Copy JAR to Deploy Folder') {
-           steps {
-               script {
-                   def jarFileOutput = bat(script: 'dir /b jenkinstesting\\target\\*.jar', returnStdout: true).trim()
-                   def jarFile = jarFileOutput.readLines()[0] // safely get first line
-                   echo "Copying ${jarFile} to ${env.DEPLOY_DIR}"
-                   bat "copy /Y jenkinstesting\\target\\${jarFile} ${env.DEPLOY_DIR}\\"
-               }
-           }
-       }
+     stage('Copy JAR to Deploy Folder') {
+         steps {
+             script {
+                 // Get list of JAR files
+                 def jarFileOutput = bat(script: 'dir /b jenkinstesting\\target\\*.jar', returnStdout: true).trim()
+                 def jarFile = jarFileOutput.readLines()[0] // safest way to get the first JAR name
+                 echo "Copying ${jarFile} to ${env.DEPLOY_DIR}"
+
+                 // Now perform the actual copy using correct path
+                 bat "copy /Y \"jenkinstesting\\target\\${jarFile}\" \"${env.DEPLOY_DIR}\\\""
+             }
+         }
+     }
+
 
 
         stage('Run Application') {
