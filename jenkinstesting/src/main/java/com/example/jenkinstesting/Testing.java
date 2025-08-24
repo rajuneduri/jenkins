@@ -8,6 +8,6 @@ public class Testing {
 
     @GetMapping("/tet")
     public String testing(){
-        return "Jenkins";
+        return "Jenkinsfile";
     }
 }
