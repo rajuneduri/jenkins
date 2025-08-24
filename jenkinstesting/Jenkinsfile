@@ -65,7 +65,7 @@ stage('Run Application in Background') {
 
 
     }
-    }
+    
 
     post {
        success {
