@@ -8,7 +8,7 @@ pipeline {
     stages {
        stage('Prepare Deploy Folder') {
                 steps {
-                    bat 'if not exist D:\\JenkinsDeploy mkdir D:\\JenkinsDeploy'
+                    bat 'if not exist D:\\JenkinsDeploy mkdir D:\\Jenkins'
                      echo "File Created"
                 }
             }
