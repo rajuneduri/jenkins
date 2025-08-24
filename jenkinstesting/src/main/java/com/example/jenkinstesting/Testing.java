@@ -10,4 +10,8 @@ public class Testing {
     public String testing(){
         return "Jenkinsfile";
     }
+    @GetMapping("/tetw")
+    public String testingww(){
+        return "Jenkinsfile22";
+    }
 }
