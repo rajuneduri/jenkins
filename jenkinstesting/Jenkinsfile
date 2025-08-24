@@ -57,23 +57,21 @@ pipeline {
 
                   dir('jenkinstesting') {
                       // Author
-                    commitAuthor = bat(
-                        script: """for /f "delims=" %%i in ('git log -1 --pretty=format:"%%an <%%ae>"') do @echo %%i""",
-                        returnStdout: true
-                    ).trim()
+                   commitAuthor = bat(
+                       script: """for /f "delims=" %%i in ('git log -1 --pretty=format:"%%an <%%ae>"') do @echo %%i""",
+                       returnStdout: true
+                   ).trim()
 
+                   commitHash = bat(
+                       script: """for /f "delims=" %%i in ('git rev-parse --short HEAD') do @echo %%i""",
+                       returnStdout: true
+                   ).trim()
 
-                      // Commit hash
-                      commitHash = bat(
-                          script: 'for /f "delims=" %%i in (\'git rev-parse --short HEAD\') do @echo %%i',
-                          returnStdout: true
-                      ).trim()
+                   commitMessage = bat(
+                       script: """for /f "delims=" %%i in ('git log -1 --pretty=format:"%%s"') do @echo %%i""",
+                       returnStdout: true
+                   ).trim()
 
-                      // Commit message
-                      commitMessage = bat(
-                          script: 'for /f "delims=" %%i in (\'git log -1 --pretty=format:"%%s"\') do @echo %%i',
-                          returnStdout: true
-                      ).trim()
 
                       // Changed files
                       changedFiles = bat(
