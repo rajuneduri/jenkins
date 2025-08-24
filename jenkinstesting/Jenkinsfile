@@ -44,46 +44,57 @@ pipeline {
 
     }
 
-    post {
-     success {
-        echo 'Build and Deployment Successful!'
-        echo 'Email Trigger'
-        script {
-            def commitAuthor = bat(
-                script: 'git log -1 --pretty=format:"%an <%ae>"',
-                returnStdout: true
-            ).trim()
+   post {
+       success {
+           echo 'Build and Deployment Successful!'
+           echo 'Email Trigger'
+           script {
+               def commitAuthor = ''
+               def commitHash = ''
+               def triggeredBy = currentBuild.getBuildCauses()?.getAt(0)?.userName ?: 'Auto/Webhook'
 
-            def commitHash = bat(
-                script: 'git rev-parse --short HEAD',
-                returnStdout: true
-            ).trim()
+               // Ensure correct directory
+               dir('jenkinstesting') {
+                   // Cleanly get author info
+                   commitAuthor = bat(
+                       script: 'for /f "delims=" %%i in (\'git log -1 --pretty=format:"%%an <%%ae>"\') do @echo %%i',
+                       returnStdout: true
+                   ).trim()
 
-            emailext (
-                to: 'rajuneduri2255@gmail.com',
-                subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: """<p><b>Build Status:</b> SUCCESS</p>
-                         <p><b>Job:</b> ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
-                         <p><b>Triggered By:</b> ${currentBuild.getBuildCauses()[0].userName ?: 'Auto/Webhook'}</p>
-                         <p><b>Last Commit:</b> ${commitHash} by ${commitAuthor}</p>
-                         <p><b>View Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
-                mimeType: 'text/html'
-            )
-           }
-      }
-       failure {
-               echo 'Pipeline Failed!'
+                   // Cleanly get commit hash
+                   commitHash = bat(
+                       script: 'for /f "delims=" %%i in (\'git rev-parse --short HEAD\') do @echo %%i',
+                       returnStdout: true
+                   ).trim()
+               }
 
                emailext (
                    to: 'rajuneduri2255@gmail.com',
-                   subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                   body: """<p>Unfortunately, the job <b>${env.JOB_NAME}</b> #${env.BUILD_NUMBER} has failed.</p>
-                            <p>Please review the build at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                   subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                   body: """<p><b>Build Status:</b> SUCCESS</p>
+                            <p><b>Job:</b> ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>
+                            <p><b>Triggered By:</b> ${triggeredBy}</p>
+                            <p><b>Last Commit:</b> ${commitHash} by ${commitAuthor}</p>
+                            <p><b>View Build:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
                    mimeType: 'text/html'
                )
            }
-    }
-  
+       }
+
+       failure {
+           echo 'Pipeline Failed!'
+
+           emailext (
+               to: 'rajuneduri2255@gmail.com',
+               subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+               body: """<p>Unfortunately, the job <b>${env.JOB_NAME}</b> #${env.BUILD_NUMBER} has failed.</p>
+                        <p>Please review the build at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+               mimeType: 'text/html'
+           )
+       }
+   }
+
+
 
 
 }
